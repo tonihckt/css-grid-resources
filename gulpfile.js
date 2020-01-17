@@ -10,7 +10,8 @@ var gulp = require("gulp"),
     concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
     // resources
-    del = require('del')
+    del = require('del'),
+    notify = require("gulp-notify"),
     sourcemaps = require("gulp-sourcemaps"),
     browserSync = require("browser-sync").create();
 
@@ -34,17 +35,17 @@ var paths = {
 };
 
 
-const clean = () => del(['dist']);
+// const clean = () => del(['dist']);
 
 
 function markup() {
     return gulp
         .src(paths.markups.src)
         .pipe(gulp.dest(paths.markups.dest))
+        .pipe(notify('listening markups...'))
         // Add browsersync stream pipe after compilation
         .pipe(browserSync.stream());
 }
-
 
 function style() {
     return gulp
@@ -58,6 +59,7 @@ function style() {
         // Now add/write the sourcemaps
         .pipe(sourcemaps.write())
         .pipe(gulp.dest(paths.styles.dest))
+        .pipe(notify('loading styles...'))
         // Add browsersync stream pipe after compilation
         .pipe(browserSync.stream());
 }
@@ -72,6 +74,7 @@ function script() {
       .pipe(uglify())
     //.pipe(concat('index.min.js'))
       .pipe(gulp.dest(paths.scripts.dest))
+      .pipe(notify('loading scripts...'))
       .pipe(browserSync.stream());
   }
 
@@ -128,10 +131,6 @@ var css = gulp.parallel(style, watch);
 var js = gulp.parallel(script, watch);
 var dev = gulp.parallel(style, markup, script, watch);
 
-var clean = gulp.parallel(style, markup, script, watch);
-
-
-
 /*
  * You can still use `gulp.task` to expose tasks
  */
@@ -147,3 +146,4 @@ var clean = gulp.parallel(style, markup, script, watch);
 gulp.task('css', css);
 gulp.task('js', js);
 gulp.task('dev', dev);
+
