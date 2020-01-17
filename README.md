@@ -1,4 +1,4 @@
-# ♦️ Sass Starter Pack
+# ♦️ Css Grid Starter Pack
 
 A light package for compiling Sass(scss files) and running a dev server using Browser Sync.
 
