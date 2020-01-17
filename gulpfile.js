@@ -12,6 +12,7 @@ var gulp = require("gulp"),
     uglify = require('gulp-uglify'),
     // images
     imagemin = require('gulp-imagemin'),
+    cache = require('gulp-cache'),
     // resources
     del = require('del'),
     notify = require("gulp-notify"),
@@ -31,15 +32,18 @@ var paths = {
         src: 'src/scripts/**/*.js',
         dest: 'dist/scripts'
     },
- 
     // Easily add additional paths
     markups: {
         src: 'src/**/*.html',
         dest: 'dist/'
     },
     images: {
-        src: 'src/images/*',
+        src: 'src/images/**/*.+(png|jpg|gif|svg)',
         dest: 'dist/images'
+    },
+    fonts: {
+        src: 'src/fonts/**/*',
+        dest: 'dist/fonts'
     }
 };
 
@@ -88,27 +92,42 @@ function script() {
       .pipe(browserSync.stream());
   }
 
-//////////////////////////////////////////COPIES IMAGES
+//////////////////////////////////////////MINIMIZE IMAGES
 // Copies the assets into the dist folder
 function image() {
     return gulp
         .src(paths.images.src)
-        // .pipe(imagemin())
-        .pipe(imagemin({
-            interlaced: true,
-            progressive: true,
-            optimizationLevel: 5,
-            svgoPlugins: [
-                {
-                    removeViewBox: true
-                }
-            ]
-        }))
+        // Caching images that ran through imagemin
+        .pipe(cache(imagemin({
+            interlaced: true
+          })))
+        // Minimize images
+        // .pipe(imagemin({
+        //     interlaced: true,
+        //     progressive: true,
+        //     optimizationLevel: 5,
+        //     svgoPlugins: [
+        //         {
+        //             removeViewBox: true
+        //         }
+        //     ]
+        // }))
         .pipe(gulp.dest(paths.images.dest))
-        .pipe(notify('copying images...'))
+        .pipe(notify('reducing images...'))
         // Add browsersync stream pipe after compilation
         .pipe(browserSync.stream());
 }
+
+//////////////////////////////////////////COPIES FONTS
+function font() {
+    return gulp
+        .src(paths.fonts.src)
+        .pipe(gulp.dest(paths.fonts.dest))
+        .pipe(notify('copying fonts...'))
+        // Add browsersync stream pipe after compilation
+        .pipe(browserSync.stream());
+}
+
 
 // A simple task to reload the page
 function reload(done) {
@@ -130,6 +149,7 @@ function watch() {
     gulp.watch(paths.styles.src, style);
     gulp.watch(paths.scripts.src, script);
     gulp.watch(paths.images.src, image);
+    gulp.watch(paths.fonts.src, font);
     // gulp.watch(paths.markups.src, markup);
     gulp.watch(paths.markups.src, markup).on('change', browserSync.reload);
 
@@ -155,6 +175,7 @@ exports.watch = watch
 exports.style = style;
 exports.script = script;
 exports.image = image;
+exports.font = font;
 exports.markup = markup;
 
 /*
@@ -164,7 +185,7 @@ exports.markup = markup;
 var css = gulp.parallel(style, watch);
 var js = gulp.parallel(script, watch);
 var img = gulp.parallel(image, watch);
-var dev = gulp.parallel(style, markup, script, image, watch);
+var dev = gulp.parallel(style, markup, script, image, font, watch);
 
 /*
  * You can still use `gulp.task` to expose tasks
