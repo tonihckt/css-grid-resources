@@ -16,7 +16,7 @@ var gulp = require("gulp"),
     // resources
     del = require('del'),
     notify = require("gulp-notify"),
-    useref = require('gulp-useref'),
+    useref = require('gulp-useref'), // concatenates CSS and Js files into a single file
 
     sourcemaps = require("gulp-sourcemaps"),
     browserSync = require("browser-sync").create();
@@ -49,6 +49,12 @@ var paths = {
 
 //////////////////////////////////////////CLEAN THE DIST
 // const clean = () => del(['dist']);
+
+
+//////////////////////////////////////////GREET
+function greet() {
+    console.log('Hello developers!!!');
+}
 
 //////////////////////////////////////////COPY ALL HTML TO DIST
 function markup() {
