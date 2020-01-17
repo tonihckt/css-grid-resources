@@ -1,3 +1,4 @@
+'use strict';
 
 var gulp = require("gulp"),
     // scss -> css
@@ -9,9 +10,13 @@ var gulp = require("gulp"),
     babel = require('gulp-babel'),
     concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
+    // images
+    imagemin = require('gulp-imagemin'),
     // resources
     del = require('del'),
     notify = require("gulp-notify"),
+    useref = require('gulp-useref'),
+
     sourcemaps = require("gulp-sourcemaps"),
     browserSync = require("browser-sync").create();
 
@@ -31,13 +36,17 @@ var paths = {
     markups: {
         src: 'src/**/*.html',
         dest: 'dist/'
+    },
+    images: {
+        src: 'src/images/*',
+        dest: 'dist/images'
     }
 };
 
-
+//////////////////////////////////////////CLEAN THE DIST
 // const clean = () => del(['dist']);
 
-
+//////////////////////////////////////////COPY ALL HTML TO DIST
 function markup() {
     return gulp
         .src(paths.markups.src)
@@ -47,6 +56,7 @@ function markup() {
         .pipe(browserSync.stream());
 }
 
+//////////////////////////////////////////COMPILE SCSS
 function style() {
     return gulp
         .src(paths.styles.src)
@@ -64,7 +74,7 @@ function style() {
         .pipe(browserSync.stream());
 }
 
-
+//////////////////////////////////////////COMPILE JS
 function script() {
     return gulp.src(paths.scripts.src, { sourcemaps: true })
     //   .pipe(babel())
@@ -77,6 +87,28 @@ function script() {
       .pipe(notify('loading scripts...'))
       .pipe(browserSync.stream());
   }
+
+//////////////////////////////////////////COPIES IMAGES
+// Copies the assets into the dist folder
+function image() {
+    return gulp
+        .src(paths.images.src)
+        // .pipe(imagemin())
+        .pipe(imagemin({
+            interlaced: true,
+            progressive: true,
+            optimizationLevel: 5,
+            svgoPlugins: [
+                {
+                    removeViewBox: true
+                }
+            ]
+        }))
+        .pipe(gulp.dest(paths.images.dest))
+        .pipe(notify('copying images...'))
+        // Add browsersync stream pipe after compilation
+        .pipe(browserSync.stream());
+}
 
 // A simple task to reload the page
 function reload(done) {
@@ -97,6 +129,7 @@ function watch() {
     });
     gulp.watch(paths.styles.src, style);
     gulp.watch(paths.scripts.src, script);
+    gulp.watch(paths.images.src, image);
     // gulp.watch(paths.markups.src, markup);
     gulp.watch(paths.markups.src, markup).on('change', browserSync.reload);
 
@@ -121,6 +154,7 @@ exports.watch = watch
 // $ gulp style
 exports.style = style;
 exports.script = script;
+exports.image = image;
 exports.markup = markup;
 
 /*
@@ -129,7 +163,8 @@ exports.markup = markup;
 // var build = gulp.parallel(style, script, watch);
 var css = gulp.parallel(style, watch);
 var js = gulp.parallel(script, watch);
-var dev = gulp.parallel(style, markup, script, watch);
+var img = gulp.parallel(image, watch);
+var dev = gulp.parallel(style, markup, script, image, watch);
 
 /*
  * You can still use `gulp.task` to expose tasks
@@ -145,5 +180,6 @@ var dev = gulp.parallel(style, markup, script, watch);
 // gulp.task('default', build);
 gulp.task('css', css);
 gulp.task('js', js);
+gulp.task('img', img);
 gulp.task('dev', dev);
 
