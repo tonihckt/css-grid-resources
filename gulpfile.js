@@ -1,3 +1,4 @@
+/*global require*/
 'use strict';
 
 var gulp = require("gulp"),
@@ -13,13 +14,20 @@ var gulp = require("gulp"),
     // images
     imagemin = require('gulp-imagemin'),
     cache = require('gulp-cache'),
+    // markup -> twig
+    twig = require('gulp-twig'), // Decided to use twig instead of pug, because already familiar with it
+    // fileinclude = require('gulp-file-include'),
+    // include = require('gulp-tag-include-html'),
     // resources
     del = require('del'),
     notify = require("gulp-notify"),
+    // data = require('gulp-data'),
     useref = require('gulp-useref'), // concatenates CSS and Js files into a single file
 
     sourcemaps = require("gulp-sourcemaps"),
+    // fs = require('fs'),
     browserSync = require("browser-sync").create();
+
 
 var paths = {
     styles: {
@@ -34,7 +42,8 @@ var paths = {
     },
     // Easily add additional paths
     markups: {
-        src: 'src/**/*.html',
+        // src: 'src/**/*.html',
+        src: 'src/views/**/*.twig',
         dest: 'dist/'
     },
     images: {
@@ -44,6 +53,9 @@ var paths = {
     fonts: {
         src: 'src/fonts/**/*',
         dest: 'dist/fonts'
+    },
+    data: {
+        src: 'src/data/**/*.twig.json'
     }
 };
 
@@ -60,6 +72,26 @@ function greet() {
 function markup() {
     return gulp
         .src(paths.markups.src)
+        // // //-> tag-include-html
+        // .pipe(include())
+        //     .pipe(include({
+        //     begin:'<%',
+        //     end:'%>'
+        // }))
+        // // //-> end-tag-include-html
+        // .pipe(data(function(file) {
+        //     return JSON.parse(fs.readFileSync(paths.data + path.basename(file.path) + '.json'));
+        // }))
+        .pipe(twig({
+            data: {
+                title: 'Gulp and Twig',
+                benefits: [
+                    'Fast',
+                    'Flexible',
+                    'Secure'
+                ]
+            }
+        }))
         .pipe(gulp.dest(paths.markups.dest))
         .pipe(notify('listening markups...'))
         // Add browsersync stream pipe after compilation
