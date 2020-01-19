@@ -6,19 +6,37 @@ $font-family-lead-base : 'Montserrat', sans-serif; // Custom
 $font-weight-light:           100 !default;
 $font-weight-normal:          500 !default;
 $font-weight-bold:            700 !default;
-@import "_variables"; // --- Vendors Variables
-@import "bootstrap/bootstrap"; // --- Vendors Bootstrap 4
+// @import "./bootstrap-variables"; // --- Vendors Variables
+// @import "vendors/bootstrap/bootstrap"; // --- Vendors Bootstrap 4
 
 
-$bg-color: #BA265D;
-$color: #FFF;
+//  Imports
+//  ───────────────────────────────────
+@import "base/normalize";  // ---> Normalize
+@import "base/variables";  // ---> Vendors Variables
+@import "base/grid-basic"; // ---> Grid Basic
+@import "base/grd-grid";   // ---> Css Grid
 
 
-body {
-    background: $bg-color;
-    color: $color;
+//  Overwrites
+//  ───────────────────────────────────
+
+:root {
+    font-size: $root-font-size;
 }
+  
 
-.testing {
-    width: percentage(5/7);
-  }
+//  Classes and ID's
+//  ───────────────────────────────────
+
+.container {
+    margin: auto;
+    background: $bg-color;
+    min-height: 100vh;
+    padding: $padding-container;
+    max-width: $width-container;
+  
+    &.fluid {
+      max-width: 100%;
+    }
+}
